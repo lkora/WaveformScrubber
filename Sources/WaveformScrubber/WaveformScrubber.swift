@@ -162,7 +162,9 @@ public struct WaveformScrubber<Drawer: WaveformDrawing,
             if Task.isCancelled { return }
 
             // This vDSP operation is very fast.
-            let downsampled = await AudioProcessor.downsample(samples: rawSamples, to: targetSampleCount)
+            let downsampled = await AudioProcessor.downsample(samples: rawSamples,
+                                                              to: targetSampleCount,
+                                                              upsampleStrategy: drawer.upsampleStrategy)
 
             if Task.isCancelled { return }
 

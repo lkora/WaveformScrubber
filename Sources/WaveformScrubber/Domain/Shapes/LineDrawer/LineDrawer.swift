@@ -11,9 +11,11 @@ import SwiftUI
 /// mirroring the amplitude above and below a center line.
 public struct LineDrawer: WaveformDrawing {
     public let config: Config
+    public var upsampleStrategy: UpsampleStrategy
 
-    public init(config: Config = .init()) {
+    public init(config: Config = .init(), upsampleStrategy: UpsampleStrategy = .smooth) {
         self.config = config
+        self.upsampleStrategy = upsampleStrategy
     }
 
     public func draw(samples: [Float], in rect: CGRect) -> Path {
@@ -28,15 +30,23 @@ public struct LineDrawer: WaveformDrawing {
 
             for (index, sample) in samples.enumerated() {
                 let x = CGFloat(index) * stepX
-                let height = max(1, CGFloat(sample) * rect.height)
 
-                topPoints.append(CGPoint(x: x, y: midY - height))
-                bottomPoints.append(CGPoint(x: x, y: midY + height))
+                let isEdgePoint = (index == 0 || index == samples.count - 1)
+                let middleAmplitude = max(1, CGFloat(sample) * midY)
+                var halfHeight: CGFloat
+
+                if config.inverted {
+                    halfHeight = isEdgePoint ? midY : middleAmplitude
+                } else {
+                    halfHeight = isEdgePoint ? 0 : middleAmplitude
+                }
+
+                topPoints.append(CGPoint(x: x, y: midY - halfHeight))
+                bottomPoints.append(CGPoint(x: x, y: midY + halfHeight))
             }
 
             path.addLines(topPoints)
-            // Reverse the bottom points to create a single, continuous, closed shape
-            path.addLines(bottomPoints)
+            path.addLines(bottomPoints.reversed())
             path.closeSubpath()
         }
     }

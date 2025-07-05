@@ -11,9 +11,11 @@ import SwiftUI
 /// This style is excellent for a modern, fluid appearance.
 public struct BezierCurveDrawer: WaveformDrawing {
     public let config: Config
-    
-    public init(config: Config = .init()) {
+    public var upsampleStrategy: UpsampleStrategy
+
+    public init(config: Config = .init(), upsampleStrategy: UpsampleStrategy = .none) {
         self.config = config
+        self.upsampleStrategy = upsampleStrategy
     }
     
     // This drawer creates a closed, fillable shape.
