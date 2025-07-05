@@ -63,6 +63,18 @@ struct ContentView: View {
 
                             WaveformScrubber(
                                 config: scrubberConfig,
+                                drawer: LineDrawer(config: .init(inverted: true)),
+                                url: audioURL,
+                                progress: $progress
+                            ) { info in
+                                print(info.duration)
+                            } onGestureActive: { status in
+
+                            }
+                            .frame(height: 100)
+
+                            WaveformScrubber(
+                                config: scrubberConfig,
                                 drawer: BarDrawer(config: .init(barWidth: 2, spacing: 2)),
                                 url: audioURL,
                                 progress: $progress

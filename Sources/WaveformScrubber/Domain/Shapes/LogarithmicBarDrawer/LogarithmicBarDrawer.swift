@@ -10,10 +10,16 @@ import SwiftUI
 public struct LogarithmicBarDrawer: WaveformDrawing {
     let linearDrawer: BarDrawer
     let floor: Float
-    
-    public init(config: BarDrawer.Config = .init(), floor: Float = 0.1) {
+    public var upsampleStrategy: UpsampleStrategy
+
+    public init(
+        config: BarDrawer.Config = .init(),
+        floor: Float = 0.1,
+        upsampleStrategy: UpsampleStrategy = .smooth
+    ) {
         self.linearDrawer = BarDrawer(config: config)
         self.floor = floor
+        self.upsampleStrategy = upsampleStrategy
     }
     
     public func draw(samples: [Float], in rect: CGRect) -> Path {
