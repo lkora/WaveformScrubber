@@ -10,9 +10,10 @@ A highly customizable, performant, and lightweight SwiftUI view that displays an
 -   **Highly Customizable:**
     -   **Pluggable Drawing System:** Use built-in drawers (`Bar`, `Line`, `BezierCurve`, etc.) or create your own by conforming to the `WaveformDrawing` protocol.
     -   **Flexible Styling:** Use the `.waveformScrubberStyle()` modifier to completely change the look and feel. Use solid colors, gradients, materials, or even combine fill and stroke styles.
+    -   **Advanced Upsampling:** Intelligently interpolates data when the view is wider than the number of samples, ensuring a smooth, visually complete waveform. Choose from multiple strategies like `.smooth`, `.linear`, `.cosine`, `.hold`, or `.none`.
 -   **Performant:**
     -   **Asynchronous Processing:** Audio is processed on a background thread to keep the UI responsive.
-    -   **Optimized Downsampling:** Uses Apple's Accelerate framework (vDSP) for high-speed sample processing.
+    -   **Optimized Downsampling:** Uses Apple's Accelerate framework (vDSP) for high-speed downsampling and upsampling.
     -   **Built-in Caching:** Processed waveform data is automatically cached in memory, ensuring seamless scrolling in lists and preventing redundant work.
 -   **Responsive:** Automatically adapts and redraws the waveform when the view size changes, such as on device rotation or window resize.
 -   **User-Friendly:** Supports scrubbing through the audio via a simple drag gesture.
@@ -71,7 +72,7 @@ struct BasicExampleView: View {
 
 `WaveformScrubber` offers two powerful customization layers: **Drawers** (the shape of the waveform) and **Styles** (the appearance/color).
 
-### Choosing a Drawer
+### 1. Choosing a Drawer
 
 A "Drawer" defines the geometric shape of the waveform. You can choose from several built-in drawers and configure them.
 
@@ -79,7 +80,7 @@ A "Drawer" defines the geometric shape of the waveform. You can choose from seve
 The classic bar graph style.
 ```swift
 WaveformScrubber(
-    drawer: BarDrawer(config: .init(barWidth: 3, spacing: 2)),
+    drawer: BarDrawer(config: .init(barWidth: 3, spacing: 5)),
     url: audioURL,
     progress: $progress
 )
@@ -89,7 +90,7 @@ WaveformScrubber(
 A solid, filled line shape, like in many popular audio apps.
 ```swift
 WaveformScrubber(
-    drawer: LineDrawer(),
+    drawer: LineDrawer(config: .init(inverted: true)), // Create a "cutout" effect
     url: audioURL,
     progress: $progress
 )
@@ -105,7 +106,37 @@ WaveformScrubber(
 )
 ```
 
-### Styling the Waveform
+
+### 2. Configuring a Drawer (Upsampling)
+
+When the waveform view is wider than the number of available samples, the scrubber intelligently **upsamples** the data to create a smooth, continuous look. You can control this behavior via the `upsampleStrategy` in each drawer's configuration.
+
+```swift
+VStack {
+    Text("Smooth Interpolation (Default)")
+    WaveformScrubber(
+        drawer: BarDrawer(upsampleStrategy: .smooth),
+        url: shortAudioURL,
+        progress: $progress
+    )
+    
+    Text("Hold Interpolation (Blocky)")
+    WaveformScrubber(
+        drawer: BarDrawer(upsampleStrategy: .hold),
+        url: shortAudioURL,
+        progress: $progress
+    )
+    
+    Text("No Interpolation (Gaps)")
+    WaveformScrubber(
+        drawer: BarDrawer(upsampleStrategy: .none),
+        url: shortAudioURL,
+        progress: $progress
+    )
+}
+```
+
+### 3. Styling the Waveform
 
 Use the `.waveformScrubberStyle()` modifier to change the appearance. The default style fills the active and inactive parts of the waveform.
 
