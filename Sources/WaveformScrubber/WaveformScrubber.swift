@@ -156,21 +156,22 @@ public struct WaveformScrubber<Drawer: WaveformDrawing,
             let rawSamples = try await waveformCacheService.samples(for: url)
 
             // 2. The downsampling step is still necessary for each instance, as it depends on `viewSize`.
-            // However, this is MUCH faster than reading and processing the entire audio file.
             let targetSampleCount = drawer.sampleCount(for: viewSize)
 
             if Task.isCancelled { return }
 
             // This vDSP operation is very fast.
-            let downsampled = await AudioProcessor.downsample(samples: rawSamples,
-                                                              to: targetSampleCount,
-                                                              upsampleStrategy: drawer.upsampleStrategy)
+            let preparedSamples = await AudioProcessor.prepareSamples(
+                samples: rawSamples,
+                to: targetSampleCount,
+                upsampleStrategy: drawer.upsampleStrategy
+            )
 
             if Task.isCancelled { return }
 
             // 3. Update the UI.
             await MainActor.run {
-                self.samples = downsampled
+                self.samples = preparedSamples
             }
 
             // We can also fetch the audio info here without re-reading the file.
