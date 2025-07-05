@@ -10,9 +10,11 @@ import SwiftUI
 /// This style renders the waveform as a series of circles, where the radius or vertical position of each circle represents the amplitude.
 public struct DotDrawer: WaveformDrawing {
     public let config: Config
+    public let upsampleStrategy: UpsampleStrategy
 
-    public init(config: Config = .init()) {
+    public init(config: Config = .init(), upsampleStrategy: UpsampleStrategy = .linear) {
         self.config = config
+        self.upsampleStrategy = upsampleStrategy
     }
 
     public func draw(samples: [Float], in rect: CGRect) -> Path {

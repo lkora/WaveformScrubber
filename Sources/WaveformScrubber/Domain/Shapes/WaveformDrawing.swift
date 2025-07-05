@@ -22,4 +22,9 @@ public protocol WaveformDrawing: Sendable {
     /// - Parameter size: The size of the view that will be rendering the waveform.
     /// - Returns: The optimal number of samples for the drawing strategy.
     func sampleCount(for size: CGSize) -> Int
+
+
+    /// Allows the scrubber to know which strategy to use for upsampling.
+    var upsampleStrategy: UpsampleStrategy { get }
+
 }

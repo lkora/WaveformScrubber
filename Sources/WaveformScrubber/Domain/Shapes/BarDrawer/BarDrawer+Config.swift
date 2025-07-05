@@ -16,7 +16,10 @@ extension BarDrawer {
         /// - Parameters:
         ///   - spacing: The distance between each waveform bar. Defaults to `2`.
         ///   - barWidth: The width of each waveform bar. Defaults to `2`.
-        public init(barWidth: CGFloat = 2, spacing: CGFloat = 2) {
+        public init(
+            barWidth: CGFloat = 2,
+            spacing: CGFloat = 2
+        ) {
             self.barWidth = barWidth
             self.spacing = spacing
         }
