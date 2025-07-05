@@ -1,0 +1,65 @@
+name: Build & Test for Apple Platforms
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # Validate the package manifest and lint the code style
+  validate-and-lint:
+    name: Validate & Lint
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Package Manifest
+        run: swift package describe
+
+      - name: Install swift-format
+        run: brew install swift-format
+
+      - name: Check Code Formatting
+        run: swift-format lint . --strict
+        
+  # Build and test the package across multiple platforms and Xcode versions
+  build-and-test:
+    name: Build & Test (${{ matrix.destination }})
+    runs-on: macos-latest
+    
+    # Use a matrix to define all the build configurations
+    strategy:
+      fail-fast: false
+      matrix:
+        destination:
+          - "platform=iOS Simulator,name=iPhone 16 Pro"
+          - "platform=macOS"
+          - "platform=visionOS Simulator,name=Apple Vision Pro" 
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Select latest Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 'latest'
+
+      # Build and test using the swift command-line tool
+      - name: Run Tests
+        run: |
+          set -o pipefail && swift test \
+            -destination "${{ matrix.destination }}" \
+            --enable-code-coverage | xcpretty
+
+      # Build the example app
+      - name: Build Example App
+        if: matrix.destination == 'platform=iOS Simulator,name=iPhone 16 Pro'
+        run: |
+          xcodebuild build \
+            -scheme WaveformScrubberExample \
+            -destination "${{ matrix.destination }}" \
+            -project Example/WaveformScrubberExample.xcodeproj
