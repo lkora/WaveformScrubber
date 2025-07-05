@@ -27,7 +27,7 @@ struct ContentView: View {
                         Section("Audio") {
                             WaveformScrubber(
                                 config: scrubberConfig,
-                                drawer: BarDrawer(config: .init(barWidth: 2, spacing: 2)),
+                                drawer: BarDrawer(config: .init(barWidth: 2, spacing: 2), upsampleStrategy: .smooth),
                                 url: audioURL,
                                 progress: $progress
                             ) { info in
