@@ -52,14 +52,14 @@ final class AudioProcessorTests: XCTestCase {
         XCTAssertEqual(downsampled.count, targetCount)
     }
 
-    func testDownsample_withTargetCountLargerThanSampleCount_returnsLinearlyInterpolatedSamplesMatchingTheCount() async {
+    func testDownsample_withTargetCountLargerThanSampleCount_returnsSameSamplesButAbs() async {
         let smallSamples: [Float] = [0.0, -0.5, 1.0]
 
         let targetSamples = 5
         let downsampled = await AudioProcessor.downsample(samples: smallSamples, to: targetSamples)
 
-        XCTAssertEqual(downsampled, [0.0, 0.25, 0.5, 0.75, 1.0])
-        XCTAssertEqual(downsampled.count, targetSamples)
+        XCTAssertEqual(downsampled, [0.0, 0.5, 1.0])
+        XCTAssertEqual(downsampled.count, smallSamples.count)
     }
 
     func testDownsample_withEmptySamples_returnsEmptyArray() async {
