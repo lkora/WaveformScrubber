@@ -37,6 +37,30 @@ struct AudioProcessor {
         return Array(channelSamples)
     }
 
+    /// Prepares audio samples for rendering by either downsampling or upsampling as needed.
+    static func prepareSamples(
+        samples: [Float],
+        to count: Int,
+        upsampleStrategy: UpsampleStrategy = .smooth
+    ) async -> [Float] {
+        guard count > 0, !samples.isEmpty else {
+            return []
+        }
+
+        let absSamples = samples.map { abs($0) }
+
+        if absSamples.count < count {
+            // Strategy is to UPSAMPLE (few -> many)
+            guard upsampleStrategy != .none else { return absSamples }
+
+            // Delegate to the specialized Upsampler service.
+            return Upsampler.upsample(samples: absSamples, to: count, strategy: upsampleStrategy)
+        } else {
+            // Strategy is to DOWNSAMPLE (many -> few)
+            return await downsample(samples: absSamples, to: count)
+        }
+    }
+
     /// Downsamples a large array of audio samples to a smaller number of points for visualization.
     /// For each bucket of samples, it computes the maximum absolute value.
     /// - Parameters:
@@ -50,19 +74,7 @@ struct AudioProcessor {
             return []
         }
 
-        // Upscale if needed
-        if samples.count < count {
-            let absSamples = samples.map { abs($0) }
-            
-            switch upsampleStrategy {
-            case .none:
-                return absSamples
-            default:
-                return interpolate(samples: absSamples, to: count, strategy: upsampleStrategy)
-            }
-        }
-
-        if samples.count == count {
+        if samples.count <= count {
             return samples.map { abs($0) }
         }
 
@@ -93,75 +105,6 @@ struct AudioProcessor {
         return downsampled
     }
 
-    /// "Stretches" a small array of samples to a larger size using hardware-accelerated interpolation.
-    /// This utilizes contorl vectors generated for the chosen strategy and `vDSP.linearInterpolate`
-    /// It is used to create a visually appealing waveform when the original number of samples
-    /// is much smaller than the desired number of points to render.
-    ///
-    /// - Parameters:
-    ///   - samples: The small array of source samples.
-    ///   - to: The target count, which must be larger than `samples.count`.
-    ///   - strategy: The `UpsampleStrategy` used for interpolating a `samples` smaller than the provided `count`.
-    /// - Returns: A new array of size `count` with interpolated values.
-    private static func interpolate(
-        samples: [Float],
-        to count: Int,
-        strategy: UpsampleStrategy
-    ) -> [Float] {
-        guard !samples.isEmpty, count > samples.count else {
-            return samples
-        }
-
-        let control = generateControlVector(from: samples.count, to: count, strategy: strategy)
-
-        let result = vDSP.linearInterpolate(elementsOf: samples,
-                                            using: control)
-
-        return result
-    }
-
-    /// Generates the control vector needed for vDSP's interpolation function based on the chosen strategy.
-    private static func generateControlVector(
-        from sourceCount: Int,
-        to resultCount: Int,
-        strategy: UpsampleStrategy
-    ) -> [Float] {
-        let linearRamp = vDSP.ramp(in: 0...Float(sourceCount - 1),
-                                count: resultCount)
-
-        switch strategy {
-        case .linear:
-            return linearRamp
-
-        case .hold:
-            // Claming the intermediare values until we reach n+1
-            return linearRamp.map { floor($0) }
-
-        case .cosine:
-            // To apply cosine easing, we operate on the fractional part of the ramp.
-            return linearRamp.map {
-                let integerPart = floor($0)
-                let fractionalPart = $0 - integerPart
-                let cosineFraction = (1 - cos(fractionalPart * .pi)) / 2
-                return integerPart + Float(cosineFraction)
-            }
-
-        case .smooth:
-            // To apply smoothstep easing, as shown in Apple's documentation.
-            // This provides a C² continuous (very smooth) transition.
-            // https://developer.apple.com/documentation/accelerate/using-linear-interpolation-to-construct-new-data-points#overview
-            return linearRamp.map {
-                let integerPart = floor($0)
-                let fractionalPart = $0 - integerPart
-                let smoothedFraction = simd_smoothstep(0, 1, fractionalPart)
-                return integerPart + smoothedFraction
-            }
-
-        case .none:
-            // We should not even have this case here
-            return []
-        }
-    }
 
     enum AudioProcessingError: Error {
         case bufferCreationFailed
