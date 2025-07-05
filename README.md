@@ -23,7 +23,7 @@ A highly customizable, performant, and lightweight SwiftUI view that displays an
 -   macOS 12.0+
 -   watchOS 8.0+
 -   visionOS 1.0+
--   Swift 5.7+
+-   Swift 5.9+
 
 ## Installation
 
