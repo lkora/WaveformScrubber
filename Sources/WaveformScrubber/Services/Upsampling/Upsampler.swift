@@ -11,7 +11,7 @@ import simd
 
 /// A namespace for hardware-accelerated upsampling (interpolation) functions.
 struct Upsampler {
-
+    
     /// "Stretches" a small array of samples to a larger size using a specified interpolation strategy.
     /// This utilizes `vDSP.linearInterpolate` for high performance. It is used to create a visually
     /// appealing waveform when the original number of samples is smaller than the number of points to render.
@@ -90,4 +90,5 @@ struct Upsampler {
             return []
         }
     }
+    
 }
