@@ -1,5 +1,9 @@
 # WaveformScrubber
 
+
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Flkora%2FWaveformScrubber%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/lkora/WaveformScrubber)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Flkora%2FWaveformScrubber%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/lkora/WaveformScrubber)
+
 A highly customizable, performant, and lightweight SwiftUI view that displays an audio waveform and allows scrubbing through playback.
 
 ![Example Screenshot](Screenshots/example_1.png)
