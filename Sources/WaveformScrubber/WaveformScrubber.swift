@@ -86,11 +86,13 @@ public struct WaveformScrubber<Drawer: WaveformDrawing,
             shape.mask(alignment: .leading) {
                 Rectangle().frame(width: viewSize.width * progress)
             }
+            .foregroundStyle(config.activeTint)
         )
         let inactive = AnyView(
             shape.mask(alignment: .leading) {
                 Rectangle().padding(.leading, viewSize.width * progress)
             }
+            .foregroundStyle(config.inactiveTint)
         )
         let configuration = WaveformScrubberStyle.Configuration(
             waveform: shape,
