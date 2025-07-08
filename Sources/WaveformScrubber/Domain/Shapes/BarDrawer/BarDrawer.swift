@@ -29,8 +29,9 @@ public struct BarDrawer: WaveformDrawing {
 
             for (index, sample) in samples.enumerated() {
                 let x = CGFloat(index) * totalBarWidth
-                // Ensure height is at least 1 to be visible
-                let height = max(1, CGFloat(sample) * rect.height)
+                let rawHeight = CGFloat(sample) * rect.height
+                // Ensure height is at least minBarHeight to be visible
+                let height = max(config.minBarHeight, rawHeight)
 
                 let barRect = CGRect(
                     x: x,
@@ -38,7 +39,10 @@ public struct BarDrawer: WaveformDrawing {
                     width: config.barWidth,
                     height: height
                 )
-                path.addRect(barRect)
+                path.addRoundedRect(
+                    in: barRect,
+                    cornerSize: CGSize(width: config.cornerRadius, height: config.cornerRadius)
+                )
             }
         }
     }
