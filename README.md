@@ -205,3 +205,20 @@ WaveformScrubber(
     }
 )
 ```
+## Documentation
+
+For more detailed documentation, check out the [documentation](https://swiftpackageindex.com/lkora/WaveformScrubber/main/documentation/waveformscrubber) page hosted on Swift Package Index.
+
+## Swift Package Manager
+
+In your `Package.swift` Swift Package Manager manifest, add the following dependency to your `dependencies` argument:
+
+```swift
+.package(url: "https://github.com/lkora/WaveformScrubber.git", branch: "main"),
+```
+
+Add the dependency to any targets you've declared in your manifest:
+
+```swift
+.target(name: "MyTarget", dependencies: ["WaveformScrubber"]),
+```
