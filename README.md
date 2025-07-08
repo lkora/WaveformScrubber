@@ -84,7 +84,7 @@ A "Drawer" defines the geometric shape of the waveform. You can choose from seve
 The classic bar graph style.
 ```swift
 WaveformScrubber(
-    drawer: BarDrawer(config: .init(barWidth: 3, spacing: 5)),
+    drawer: BarDrawer(config: .init(barWidth: 4, spacing: 5, minBarHeight: 4, cornerRadius: 2)),
     url: audioURL,
     progress: $progress
 )
